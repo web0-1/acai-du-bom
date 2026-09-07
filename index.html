@@ -33,17 +33,17 @@
         ::-webkit-scrollbar-track { background: #e5ddd8; }
         ::-webkit-scrollbar-thumb { background: #b55a9a; border-radius: 10px; }
 
-        /* ===== HEADER ===== */
+        /* ===== HEADER FIXO NO TOPO ===== */
         .header {
-            background: rgba(255, 252, 250, 0.92);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            padding: 12px 20px;
             position: sticky;
             top: 0;
             z-index: 1000;
+            background: rgba(255, 252, 250, 0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border-bottom: 2px solid #b55a9a;
             box-shadow: 0 4px 20px rgba(181, 90, 154, 0.15);
+            padding: 8px 20px;
         }
 
         .header-content {
@@ -52,14 +52,15 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
             gap: 16px;
         }
 
+        /* Logo à esquerda */
+        .header-left {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+        }
         .header-left img {
             height: 80px;
             width: auto;
@@ -69,15 +70,26 @@
         }
         .header-left img:hover { transform: scale(1.03); }
 
-        .header-left .brand {
+        /* Nome centralizado */
+        .header-center {
+            flex: 1;
+            text-align: center;
+        }
+        .header-center .brand {
             font-family: 'Playfair Display', serif;
             font-weight: 700;
-            font-size: 1.8rem;
+            font-size: 2.2rem;
             color: #1e1a1a;
             letter-spacing: -0.5px;
         }
-        .header-left .brand span { color: #b55a9a; }
+        .header-center .brand span { color: #b55a9a; }
 
+        /* Badge à direita */
+        .header-right {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+        }
         .header-right .badge {
             background: rgba(181, 90, 154, 0.12);
             border: 1px solid #b55a9a;
@@ -847,6 +859,7 @@
         @media (max-width: 1024px) {
             .container { grid-template-columns: 1fr 320px; gap: 24px; }
             .header-left img { height: 70px; }
+            .header-center .brand { font-size: 1.8rem; }
             .menu-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
         }
 
@@ -854,10 +867,9 @@
             .container { grid-template-columns: 1fr; gap: 24px; }
             .cart-sidebar { display: none; }
             .float-cart-btn { display: flex; }
-            .header-content { flex-direction: column; align-items: center; gap: 6px; }
-            .header-left { flex-direction: column; align-items: center; }
+            .header-content { flex-wrap: wrap; justify-content: center; gap: 8px; }
             .header-left img { height: 56px; }
-            .header-left .brand { font-size: 1.3rem; }
+            .header-center .brand { font-size: 1.4rem; }
             .header-right .badge { font-size: 0.65rem; padding: 3px 10px; }
         }
 
@@ -882,7 +894,8 @@
             .flavor-item .emoji, .calda-item .emoji, .condimento-item .emoji { font-size: 1rem; }
             .cart-modal-box { padding: 16px 14px; }
             .float-cart-btn { padding: 8px 14px; font-size: 0.75rem; }
-            .header-left .brand { font-size: 1.1rem; }
+            .header-center .brand { font-size: 1.2rem; }
+            .header-left img { height: 48px; }
         }
 
         @media (max-width: 400px) {
@@ -897,11 +910,13 @@
 </head>
 <body>
 
-    <!-- ===== HEADER ===== -->
+    <!-- ===== HEADER FIXO NO TOPO ===== -->
     <header class="header">
         <div class="header-content">
             <div class="header-left">
                 <img src="lg.png" alt="Logo Açaí Du Bom" />
+            </div>
+            <div class="header-center">
                 <span class="brand">Açaí <span>Du Bom</span></span>
             </div>
             <div class="header-right">
@@ -1713,7 +1728,7 @@
         }
 
         // ================================================================
-        // 12. FINALIZAR (WHATSAPP) - NÚMERO CORRETO + SEM EMOJIS
+        // 12. FINALIZAR (WHATSAPP) - NÚMERO CORRETO E SEM EMOJIS
         // ================================================================
         function checkout() {
             const keys = Object.keys(cart);
