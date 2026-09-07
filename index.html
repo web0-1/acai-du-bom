@@ -182,7 +182,7 @@
 
         .menu-item .item-image {
             width: 100%;
-            height: 150px; /* altura reduzida para mostrar a garrafa inteira */
+            height: 180px; /* altura aumentada para melhor visualização */
             background: #1a1218;
             display: flex;
             align-items: center;
@@ -194,7 +194,7 @@
         .menu-item .item-image img {
             width: 100%;
             height: 100%;
-            object-fit: contain; /* mostra a imagem inteira sem cortar */
+            object-fit: contain;
             border-radius: 8px;
         }
         .menu-item .item-image .placeholder-icon {
@@ -805,18 +805,18 @@
             .header-left img { height: 64px; }
             .header-left .brand { font-size: 1.5rem; }
             .header-right .badge { font-size: 0.7rem; padding: 4px 12px; }
-            .menu-item .item-image { height: 130px; }
+            .menu-item .item-image { height: 200px; } /* Aumentado para tablets e celulares grandes */
         }
 
         @media (max-width: 500px) {
             .container { padding: 0 16px; }
-            .menu-grid { grid-template-columns: 1fr; }
+            .menu-grid { grid-template-columns: 1fr; gap: 16px; } /* Uma coluna e mais espaçamento */
             .cart-sidebar { padding: 20px 16px; }
             .header-left img { height: 52px; }
             .modal-box { padding: 20px 16px; }
             .flavor-grid, .calda-grid, .condimento-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
             .header-left .brand { font-size: 1.2rem; }
-            .menu-item .item-image { height: 120px; }
+            .menu-item .item-image { height: 220px; } /* Ainda maior para telas muito pequenas */
         }
 
         @media (max-width: 850px) {
