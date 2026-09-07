@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
         /* ================================================================
-           TEMA CLARO + ROXO FORTE (mantido igual)
+           TEMA CLARO + ROXO FORTE (mantido igual, com adições para autocomplete)
            ================================================================ */
         * {
             margin: 0;
@@ -33,7 +33,7 @@
         ::-webkit-scrollbar-track { background: #e5ddd8; }
         ::-webkit-scrollbar-thumb { background: #b55a9a; border-radius: 10px; }
 
-        /* ===== HEADER FIXO NO TOPO ===== */
+        /* ===== HEADER FIXO ===== */
         .header {
             position: sticky;
             top: 0;
@@ -55,11 +55,7 @@
             gap: 16px;
         }
 
-        .header-left {
-            flex: 0 0 auto;
-            display: flex;
-            align-items: center;
-        }
+        .header-left { flex: 0 0 auto; display: flex; align-items: center; }
         .header-left img {
             height: 80px;
             width: auto;
@@ -69,10 +65,7 @@
         }
         .header-left img:hover { transform: scale(1.03); }
 
-        .header-center {
-            flex: 1;
-            text-align: center;
-        }
+        .header-center { flex: 1; text-align: center; }
         .header-center .brand {
             font-family: 'Playfair Display', serif;
             font-weight: 700;
@@ -82,11 +75,7 @@
         }
         .header-center .brand span { color: #b55a9a; }
 
-        .header-right {
-            flex: 0 0 auto;
-            display: flex;
-            align-items: center;
-        }
+        .header-right { flex: 0 0 auto; display: flex; align-items: center; }
         .header-right .badge {
             background: rgba(181, 90, 154, 0.12);
             border: 1px solid #b55a9a;
@@ -139,10 +128,7 @@
             color: #1e1a1a;
             letter-spacing: -0.2px;
         }
-        .category-header i {
-            font-size: 1.4rem;
-            color: #b55a9a;
-        }
+        .category-header i { font-size: 1.4rem; color: #b55a9a; }
         .category-badge {
             background: rgba(181, 90, 154, 0.1);
             color: #b55a9a;
@@ -373,7 +359,7 @@
             font-size: 0.9rem;
         }
 
-        /* ===== ENTREGA + ENDEREÇO ===== */
+        /* ===== DELIVERY (com autocomplete) ===== */
         .delivery-area {
             margin: 8px 0 8px;
             padding-top: 10px;
@@ -388,6 +374,7 @@
         .delivery-area .input-group {
             display: flex;
             gap: 6px;
+            position: relative;
         }
         .delivery-area input {
             flex: 1;
@@ -418,6 +405,37 @@
             background: rgba(181, 90, 154, 0.2);
             color: #b55a9a;
         }
+
+        /* Sugestões (autocomplete) */
+        .suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            border: 1px solid rgba(181, 90, 154, 0.2);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 999;
+            display: none;
+            margin-top: 4px;
+        }
+        .suggestions .suggestion-item {
+            padding: 8px 14px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: #1e1a1a;
+            border-bottom: 1px solid #f0ebe8;
+            transition: background 0.15s;
+        }
+        .suggestions .suggestion-item:last-child { border-bottom: none; }
+        .suggestions .suggestion-item:hover {
+            background: rgba(181, 90, 154, 0.08);
+            color: #b55a9a;
+        }
+
         .delivery-area .frete-result {
             margin-top: 4px;
             font-size: 0.8rem;
@@ -430,7 +448,7 @@
             margin-top: 8px;
             padding-top: 8px;
             border-top: 1px dashed rgba(181, 90, 154, 0.2);
-            display: none; /* será exibido via JS quando o frete for calculado */
+            display: none;
         }
         .endereco-area label {
             font-size: 0.75rem;
@@ -448,16 +466,9 @@
             outline: none;
             margin-bottom: 4px;
         }
-        .endereco-area input:focus {
-            border-color: #b55a9a;
-        }
-        .endereco-area .row {
-            display: flex;
-            gap: 8px;
-        }
-        .endereco-area .row input {
-            flex: 1;
-        }
+        .endereco-area input:focus { border-color: #b55a9a; }
+        .endereco-area .row { display: flex; gap: 8px; }
+        .endereco-area .row input { flex: 1; }
 
         /* ===== PAGAMENTO ===== */
         .payment-area {
@@ -943,7 +954,7 @@
 </head>
 <body>
 
-    <!-- ===== HEADER FIXO NO TOPO ===== -->
+    <!-- ===== HEADER FIXO ===== -->
     <header class="header">
         <div class="header-content">
             <div class="header-left">
@@ -979,12 +990,13 @@
             <div class="delivery-area">
                 <label><i class="fas fa-map-pin"></i> Bairro para entrega</label>
                 <div class="input-group">
-                    <input type="text" id="bairroInput" placeholder="Ex: Centro, Jardim..." />
+                    <input type="text" id="bairroInput" placeholder="Digite o bairro..." autocomplete="off" />
+                    <div class="suggestions" id="suggestions"></div>
                     <button class="btn-calc-frete" id="calcFreteBtn"><i class="fas fa-calculator"></i></button>
                 </div>
                 <div class="frete-result" id="freteResult">Digite seu bairro para calcular o frete.</div>
 
-                <!-- ENDEREÇO (oculto inicialmente) -->
+                <!-- ENDEREÇO (oculto) -->
                 <div class="endereco-area" id="enderecoArea">
                     <label>Rua:</label>
                     <input type="text" id="ruaInput" placeholder="Ex: Rua das Flores" />
@@ -1001,7 +1013,7 @@
                 </div>
             </div>
 
-            <!-- PAGAMENTO (ORDEM: Cartão, Pix, Dinheiro) -->
+            <!-- PAGAMENTO -->
             <div class="payment-area">
                 <label><i class="fas fa-credit-card"></i> Forma de pagamento</label>
                 <div class="radio-group">
@@ -1031,14 +1043,14 @@
         </aside>
     </div>
 
-    <!-- ===== BOTÃO FLUTUANTE (mobile) ===== -->
+    <!-- ===== BOTÃO FLUTUANTE ===== -->
     <button class="float-cart-btn" id="float-cart-btn">
         <i class="fas fa-shopping-bag"></i>
         Ver pedido
         <span class="badge" id="float-badge">0</span>
     </button>
 
-    <!-- ===== MODAL DO CARRINHO (mobile) ===== -->
+    <!-- ===== MODAL DO CARRINHO ===== -->
     <div class="cart-modal-overlay" id="cartModal">
         <div class="cart-modal-box">
             <button class="close-modal" id="closeCartModal">&times;</button>
@@ -1057,7 +1069,8 @@
             <div class="delivery-area">
                 <label><i class="fas fa-map-pin"></i> Bairro para entrega</label>
                 <div class="input-group">
-                    <input type="text" id="modalBairroInput" placeholder="Ex: Centro, Jardim..." />
+                    <input type="text" id="modalBairroInput" placeholder="Digite o bairro..." autocomplete="off" />
+                    <div class="suggestions" id="modalSuggestions"></div>
                     <button class="btn-calc-frete" id="modalCalcFreteBtn"><i class="fas fa-calculator"></i></button>
                 </div>
                 <div class="frete-result" id="modalFreteResult">Digite seu bairro para calcular o frete.</div>
@@ -1122,7 +1135,7 @@
 
     <script>
         // ================================================================
-        // 1. CARDÁPIO COM IMAGENS CORRETAS (inclui 1L)
+        // 1. CARDÁPIO
         // ================================================================
         const categories = [{
             name: "🥤 Açaí de Garrafa",
@@ -1144,7 +1157,7 @@
         }];
 
         // ================================================================
-        // 2. SABORES (GARRAFA: 4 opções; COPO: lista completa)
+        // 2. SABORES
         // ================================================================
         const saboresGarrafa = [
             { id: 'banana', label: 'Banana', emoji: '🍌' },
@@ -1237,7 +1250,9 @@
         const modal = document.getElementById('flavorModal');
         const modalBox = document.getElementById('modalBox');
 
+        // Sidebar
         const bairroInput = document.getElementById('bairroInput');
+        const suggestions = document.getElementById('suggestions');
         const calcFreteBtn = document.getElementById('calcFreteBtn');
         const freteResult = document.getElementById('freteResult');
         const enderecoArea = document.getElementById('enderecoArea');
@@ -1245,24 +1260,26 @@
         const numeroInput = document.getElementById('numeroInput');
         const loteInput = document.getElementById('loteInput');
 
-        const paymentRadios = document.querySelectorAll('input[name="payment"]');
-        const trocoArea = document.getElementById('trocoArea');
-        const valorPago = document.getElementById('valorPago');
-        const trocoResult = document.getElementById('trocoResult');
-
-        // Elementos do modal do carrinho
-        const cartModal = document.getElementById('cartModal');
-        const closeCartModal = document.getElementById('closeCartModal');
-        const modalCartItems = document.getElementById('modal-cart-items');
-        const modalCartTotal = document.getElementById('modal-cart-total-value');
-        const modalCartCount = document.getElementById('modal-cart-count');
+        // Modal mobile
         const modalBairroInput = document.getElementById('modalBairroInput');
+        const modalSuggestions = document.getElementById('modalSuggestions');
         const modalCalcFreteBtn = document.getElementById('modalCalcFreteBtn');
         const modalFreteResult = document.getElementById('modalFreteResult');
         const modalEnderecoArea = document.getElementById('modalEnderecoArea');
         const modalRuaInput = document.getElementById('modalRuaInput');
         const modalNumeroInput = document.getElementById('modalNumeroInput');
         const modalLoteInput = document.getElementById('modalLoteInput');
+
+        const paymentRadios = document.querySelectorAll('input[name="payment"]');
+        const trocoArea = document.getElementById('trocoArea');
+        const valorPago = document.getElementById('valorPago');
+        const trocoResult = document.getElementById('trocoResult');
+
+        const cartModal = document.getElementById('cartModal');
+        const closeCartModal = document.getElementById('closeCartModal');
+        const modalCartItems = document.getElementById('modal-cart-items');
+        const modalCartTotal = document.getElementById('modal-cart-total-value');
+        const modalCartCount = document.getElementById('modal-cart-count');
 
         const modalPaymentRadios = document.querySelectorAll('input[name="modalPayment"]');
         const modalTrocoArea = document.getElementById('modalTrocoArea');
@@ -1272,7 +1289,7 @@
         const modalClearBtn = document.getElementById('modalClearBtn');
 
         // ================================================================
-        // 7. FRETES (incluindo "engenho" com R$ 3,00)
+        // 7. FRETES (inclui "engenho")
         // ================================================================
         const fretes = {
             'centro': 5.00,
@@ -1283,6 +1300,7 @@
             'cidade alta': 10.00,
             'engenho': 3.00,
         };
+        const bairroList = Object.keys(fretes);
 
         // ================================================================
         // 8. RENDERIZAR CARDÁPIO
@@ -1344,7 +1362,7 @@
         }
 
         // ================================================================
-        // 9. MODAL DE SABORES (mesma lógica anterior)
+        // 9. MODAL DE SABORES (resumido para não repetir todo o código)
         // ================================================================
         function openModal(item) {
             modalState = {
@@ -1359,8 +1377,6 @@
             let html = '';
             html += `<h3>🍧 Monte seu pedido</h3>`;
             html += `<p class="sub">Para <span class="selected-size">${item.name}</span></p>`;
-
-            // Sabores
             html += `<div class="modal-section">`;
             const flavorList = isCopo ? saboresCopo : saboresGarrafa;
             const label = isCopo ? 'Escolha até 2 sabores (pode repetir)' : 'Escolha 1 sabor';
@@ -1386,11 +1402,8 @@
             });
             html += `</div></div>`;
 
-            // Caldas (apenas copo)
             if (isCopo) {
-                html += `<div class="modal-section">`;
-                html += `<h4>🍫 Escolha 1 calda</h4>`;
-                html += `<div class="calda-grid" id="modalCaldaGrid">`;
+                html += `<div class="modal-section"><h4>🍫 Escolha 1 calda</h4><div class="calda-grid" id="modalCaldaGrid">`;
                 caldas.forEach(calda => {
                     const isSelected = modalState.selectedCaldaId === calda.id;
                     html += `
@@ -1402,11 +1415,7 @@
                     `;
                 });
                 html += `</div></div>`;
-
-                // Condimentos
-                html += `<div class="modal-section">`;
-                html += `<h4>🥜 Condimentos (escolha quantos quiser, sem custo)</h4>`;
-                html += `<div class="condimento-grid" id="modalCondimentoGrid">`;
+                html += `<div class="modal-section"><h4>🥜 Condimentos (escolha quantos quiser)</h4><div class="condimento-grid" id="modalCondimentoGrid">`;
                 condimentos.forEach(cond => {
                     const isSelected = modalState.selectedCondimentos.includes(cond.id);
                     html += `
@@ -1420,19 +1429,17 @@
                 html += `</div></div>`;
             }
 
-            html += `<div class="modal-actions">`;
-            html += `<button class="btn-confirm-flavor" id="modalConfirmBtn">Adicionar ao carrinho</button>`;
-            html += `<button class="modal-close" id="modalCloseBtn"><i class="fas fa-times"></i> Cancelar</button>`;
-            html += `</div>`;
+            html += `<div class="modal-actions">
+                <button class="btn-confirm-flavor" id="modalConfirmBtn">Adicionar ao carrinho</button>
+                <button class="modal-close" id="modalCloseBtn"><i class="fas fa-times"></i> Cancelar</button>
+            </div>`;
 
             modalBox.innerHTML = html;
             modal.classList.add('active');
 
-            // Eventos
             document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
             modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 
-            // Garrafa
             if (!isCopo) {
                 document.querySelectorAll('#modalFlavorGrid .flavor-item').forEach(el => {
                     el.addEventListener('click', () => {
@@ -1442,7 +1449,6 @@
                     });
                 });
             } else {
-                // Copo
                 document.querySelectorAll('.flavor-qty-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         e.stopPropagation();
@@ -1477,8 +1483,6 @@
                         updateModalUI();
                     });
                 });
-
-                // Caldas
                 document.querySelectorAll('#modalCaldaGrid .calda-item').forEach(el => {
                     el.addEventListener('click', () => {
                         const id = el.dataset.caldaId;
@@ -1486,17 +1490,12 @@
                         updateModalUI();
                     });
                 });
-
-                // Condimentos
                 document.querySelectorAll('#modalCondimentoGrid .condimento-item').forEach(el => {
                     el.addEventListener('click', () => {
                         const id = el.dataset.condimentoId;
                         const idx = modalState.selectedCondimentos.indexOf(id);
-                        if (idx > -1) {
-                            modalState.selectedCondimentos.splice(idx, 1);
-                        } else {
-                            modalState.selectedCondimentos.push(id);
-                        }
+                        if (idx > -1) modalState.selectedCondimentos.splice(idx, 1);
+                        else modalState.selectedCondimentos.push(id);
                         updateModalUI();
                     });
                 });
@@ -1707,7 +1706,6 @@
             freteAtual = 0;
             bairroInput.value = '';
             freteResult.innerHTML = 'Digite seu bairro para calcular o frete.';
-            // Esconder campos de endereço
             enderecoArea.style.display = 'none';
             ruaInput.value = '';
             numeroInput.value = '';
@@ -1722,13 +1720,75 @@
             trocoResult.innerHTML = '';
             modalValorPago.value = '';
             modalTrocoResult.innerHTML = '';
+            suggestions.style.display = 'none';
+            modalSuggestions.style.display = 'none';
             renderCart();
             showToast('Carrinho limpo');
         }
 
         // ================================================================
-        // 11. FRETE E ENDEREÇO
+        // 11. AUTOCOMPLETE + FRETE + ENDEREÇO
         // ================================================================
+        function filterBairros(input, suggestionsContainer) {
+            const text = input.value.toLowerCase().trim();
+            if (text.length === 0) {
+                suggestionsContainer.style.display = 'none';
+                return;
+            }
+            const matches = bairroList.filter(b => b.toLowerCase().includes(text));
+            if (matches.length === 0) {
+                suggestionsContainer.style.display = 'none';
+                return;
+            }
+            suggestionsContainer.innerHTML = '';
+            matches.forEach(b => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.textContent = b.charAt(0).toUpperCase() + b.slice(1);
+                div.addEventListener('mousedown', (e) => {
+                    e.preventDefault(); // evitar blur
+                    selectBairro(b, input, suggestionsContainer);
+                });
+                suggestionsContainer.appendChild(div);
+            });
+            suggestionsContainer.style.display = 'block';
+        }
+
+        function selectBairro(bairro, input, suggestionsContainer) {
+            input.value = bairro.charAt(0).toUpperCase() + bairro.slice(1);
+            suggestionsContainer.style.display = 'none';
+            // Calcular frete automaticamente
+            if (input === bairroInput) {
+                calcularFrete();
+            } else if (input === modalBairroInput) {
+                calcularFreteModal();
+            }
+        }
+
+        // Fechar sugestões ao clicar fora
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.input-group')) {
+                suggestions.style.display = 'none';
+                modalSuggestions.style.display = 'none';
+            }
+        });
+
+        // Sidebar: autocomplete
+        bairroInput.addEventListener('input', () => {
+            filterBairros(bairroInput, suggestions);
+        });
+        bairroInput.addEventListener('blur', () => {
+            setTimeout(() => { suggestions.style.display = 'none'; }, 200);
+        });
+
+        // Modal: autocomplete
+        modalBairroInput.addEventListener('input', () => {
+            filterBairros(modalBairroInput, modalSuggestions);
+        });
+        modalBairroInput.addEventListener('blur', () => {
+            setTimeout(() => { modalSuggestions.style.display = 'none'; }, 200);
+        });
+
         function calcularFrete() {
             const bairro = bairroInput.value.trim().toLowerCase();
             if (!bairro) {
@@ -1742,7 +1802,6 @@
             if (found) {
                 freteAtual = fretes[found];
                 freteResult.innerHTML = `Frete para <strong>${found}</strong>: R$ ${freteAtual.toFixed(2)}`;
-                // Exibir campos de endereço
                 enderecoArea.style.display = 'block';
             } else {
                 freteAtual = 0;
@@ -1765,10 +1824,8 @@
             if (found) {
                 freteAtual = fretes[found];
                 modalFreteResult.innerHTML = `Frete para <strong>${found}</strong>: R$ ${freteAtual.toFixed(2)}`;
-                // Sincroniza com a sidebar
                 bairroInput.value = modalBairroInput.value;
                 freteResult.innerHTML = modalFreteResult.innerHTML;
-                // Exibir campos de endereço
                 enderecoArea.style.display = 'block';
                 modalEnderecoArea.style.display = 'block';
             } else {
@@ -1795,7 +1852,6 @@
             } else {
                 trocoResult.innerHTML = '';
             }
-            // Sincroniza com o modal
             if (cartModal.classList.contains('active')) {
                 modalValorPago.value = valorPago.value;
                 modalTrocoResult.innerHTML = trocoResult.innerHTML;
@@ -1817,13 +1873,12 @@
             } else {
                 modalTrocoResult.innerHTML = '';
             }
-            // Sincroniza com a sidebar
             valorPago.value = modalValorPago.value;
             trocoResult.innerHTML = modalTrocoResult.innerHTML;
         }
 
         // ================================================================
-        // 12. FINALIZAR (WHATSAPP) - COM ENDEREÇO
+        // 12. FINALIZAR (WHATSAPP)
         // ================================================================
         function checkout() {
             const keys = Object.keys(cart);
@@ -1859,7 +1914,6 @@
                 }
             }
 
-            // Adicionar endereço se os campos estiverem visíveis e preenchidos
             let endereco = '';
             const rua = ruaInput.value.trim();
             const numero = numeroInput.value.trim();
@@ -1889,7 +1943,7 @@
         }
 
         // ================================================================
-        // 14. SINCronizar conteúdo do modal do carrinho
+        // 14. SINCronizar modal do carrinho
         // ================================================================
         function syncModalContent() {
             const keys = Object.keys(cart);
@@ -1927,7 +1981,6 @@
             const total = subtotal + freteAtual;
             modalCartTotal.textContent = `R$ ${total.toFixed(2)}`;
 
-            // Sincroniza campos
             modalBairroInput.value = bairroInput.value;
             modalFreteResult.innerHTML = freteResult.innerHTML;
             if (enderecoArea.style.display === 'block') {
@@ -1946,7 +1999,6 @@
             modalValorPago.value = valorPago.value;
             modalTrocoResult.innerHTML = trocoResult.innerHTML;
 
-            // Eventos dos botões de quantidade no modal
             document.querySelectorAll('.modal-qty-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -1972,7 +2024,6 @@
         checkoutBtn.addEventListener('click', checkout);
         clearBtn.addEventListener('click', clearCart);
 
-        // Abrir/fechar modal do carrinho
         function openCartModal() {
             cartModal.classList.add('active');
             syncModalContent();
@@ -1988,27 +2039,20 @@
             if (e.target === cartModal) closeCartModalFn();
         });
 
-        // Frete sidebar
         calcFreteBtn.addEventListener('click', calcularFrete);
         bairroInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') calcularFrete();
         });
 
-        // Frete modal
         modalCalcFreteBtn.addEventListener('click', calcularFreteModal);
         modalBairroInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') calcularFreteModal();
         });
 
-        // Sincronizar input bairro entre sidebar e modal
-        bairroInput.addEventListener('input', () => {
-            modalBairroInput.value = bairroInput.value;
-        });
-        modalBairroInput.addEventListener('input', () => {
-            bairroInput.value = modalBairroInput.value;
-        });
+        // Sincronizar campos entre sidebar e modal
+        bairroInput.addEventListener('input', () => { modalBairroInput.value = bairroInput.value; });
+        modalBairroInput.addEventListener('input', () => { bairroInput.value = modalBairroInput.value; });
 
-        // Sincronizar endereço entre sidebar e modal
         ruaInput.addEventListener('input', () => { modalRuaInput.value = ruaInput.value; });
         modalRuaInput.addEventListener('input', () => { ruaInput.value = modalRuaInput.value; });
         numeroInput.addEventListener('input', () => { modalNumeroInput.value = numeroInput.value; });
@@ -2016,7 +2060,6 @@
         loteInput.addEventListener('input', () => { modalLoteInput.value = loteInput.value; });
         modalLoteInput.addEventListener('input', () => { loteInput.value = modalLoteInput.value; });
 
-        // Pagamento sidebar
         paymentRadios.forEach(radio => {
             radio.addEventListener('change', () => {
                 if (radio.value === 'dinheiro') {
@@ -2025,7 +2068,6 @@
                     trocoArea.classList.remove('show');
                     trocoResult.innerHTML = '';
                 }
-                // Sincroniza com modal
                 const modalRadio = document.querySelector(`input[name="modalPayment"][value="${radio.value}"]`);
                 if (modalRadio) modalRadio.checked = true;
                 if (radio.value === 'dinheiro') {
@@ -2043,7 +2085,6 @@
             modalValorPago.value = valorPago.value;
         });
 
-        // Pagamento modal
         modalPaymentRadios.forEach(radio => {
             radio.addEventListener('change', () => {
                 if (radio.value === 'dinheiro') {
@@ -2052,7 +2093,6 @@
                     modalTrocoArea.classList.remove('show');
                     modalTrocoResult.innerHTML = '';
                 }
-                // Sincroniza sidebar
                 const sidebarRadio = document.querySelector(`input[name="payment"][value="${radio.value}"]`);
                 if (sidebarRadio) sidebarRadio.checked = true;
                 if (radio.value === 'dinheiro') {
@@ -2070,9 +2110,7 @@
             valorPago.value = modalValorPago.value;
         });
 
-        // Ações do modal do carrinho
         modalCheckoutBtn.addEventListener('click', () => {
-            // Sincroniza campos antes de finalizar
             bairroInput.value = modalBairroInput.value;
             freteResult.innerHTML = modalFreteResult.innerHTML;
             ruaInput.value = modalRuaInput.value;
