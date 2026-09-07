@@ -1042,7 +1042,7 @@
 
     <script>
         // ================================================================
-        // 1. CARDÁPIO COM IMAGENS CORRETAS
+        // 1. CARDÁPIO COM IMAGENS CORRETAS (inclui 1L)
         // ================================================================
         const categories = [{
             name: "🥤 Açaí de Garrafa",
@@ -1050,7 +1050,6 @@
             items: [
                 { id: 'g300', name: '300ml', desc: 'Tradicional · puro açaí', price: 9.00, category: 'garrafa', image: 'garrafa300.jpg' },
                 { id: 'g500', name: '500ml', desc: 'Grande · mais açaí', price: 13.00, category: 'garrafa', image: 'garrafa500.jpg' },
-                // NOVA GARRAFA DE 1 LITRO (mesma imagem da 500ml)
                 { id: 'g1000', name: '1 Litro', desc: 'Família · para compartilhar', price: 20.00, category: 'garrafa', image: 'garrafa500.jpg' },
             ]
         }, {
@@ -1254,7 +1253,7 @@
         }
 
         // ================================================================
-        // 9. MODAL DE SABORES (mesma lógica anterior)
+        // 9. MODAL DE SABORES
         // ================================================================
         function openModal(item) {
             modalState = {
@@ -1714,7 +1713,7 @@
         }
 
         // ================================================================
-        // 12. FINALIZAR (WHATSAPP) - NÚMERO ATUALIZADO
+        // 12. FINALIZAR (WHATSAPP) - NÚMERO CORRETO + SEM EMOJIS
         // ================================================================
         function checkout() {
             const keys = Object.keys(cart);
@@ -1724,35 +1723,35 @@
             }
 
             let total = 0;
-            let msg = '🍧 *PEDIDO - AÇAÍ DU BOM* 🍧\n\n';
+            let msg = '*PEDIDO - AÇAÍ DU BOM*\n\n';
             keys.forEach(id => {
                 const item = cart[id];
                 const st = item.price * item.quantity;
                 total += st;
-                msg += `*${item.name}* x${item.quantity} = R$ ${st.toFixed(2)}\n`;
+                msg += `${item.name} x${item.quantity} = R$ ${st.toFixed(2)}\n`;
             });
 
             if (freteAtual > 0) {
                 total += freteAtual;
-                msg += `\n*Frete:* R$ ${freteAtual.toFixed(2)}`;
+                msg += `\nFrete: R$ ${freteAtual.toFixed(2)}`;
             }
 
             const payment = document.querySelector('input[name="payment"]:checked')?.value || 'não informado';
-            msg += `\n*Total com frete:* R$ ${total.toFixed(2)}`;
-            msg += `\n*Pagamento:* ${payment}`;
+            msg += `\nTotal com frete: R$ ${total.toFixed(2)}`;
+            msg += `\nPagamento: ${payment}`;
 
             if (payment === 'dinheiro') {
                 const pago = parseFloat(valorPago.value.replace(',', '.')) || 0;
                 if (pago > 0) {
                     const troco = pago - total;
-                    msg += `\n*Valor pago:* R$ ${pago.toFixed(2)}`;
-                    msg += `\n*Troco:* R$ ${troco >= 0 ? troco.toFixed(2) : 'insuficiente'}`;
+                    msg += `\nValor pago: R$ ${pago.toFixed(2)}`;
+                    msg += `\nTroco: R$ ${troco >= 0 ? troco.toFixed(2) : 'insuficiente'}`;
                 }
             }
 
-            msg += `\n\n_Entrega: ${bairroInput.value || 'não informado'}_`;
+            msg += `\n\nEntrega: ${bairroInput.value || 'não informado'}`;
 
-            // Número atualizado para 21 982336956
+            // Número correto: +55 21 98233-6956
             const phone = '5521982336956';
             const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
             window.open(url, '_blank');
