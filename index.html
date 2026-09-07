@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
         /* ================================================================
-           TEMA CLARO + ROXO FORTE
+           TEMA CLARO + ROXO FORTE (mantido igual)
            ================================================================ */
         * {
             margin: 0;
@@ -55,7 +55,6 @@
             gap: 16px;
         }
 
-        /* Logo à esquerda */
         .header-left {
             flex: 0 0 auto;
             display: flex;
@@ -70,7 +69,6 @@
         }
         .header-left img:hover { transform: scale(1.03); }
 
-        /* Nome centralizado */
         .header-center {
             flex: 1;
             text-align: center;
@@ -84,7 +82,6 @@
         }
         .header-center .brand span { color: #b55a9a; }
 
-        /* Badge à direita */
         .header-right {
             flex: 0 0 auto;
             display: flex;
@@ -376,9 +373,9 @@
             font-size: 0.9rem;
         }
 
-        /* ===== ENTREGA + PAGAMENTO ===== */
+        /* ===== ENTREGA + ENDEREÇO ===== */
         .delivery-area {
-            margin: 8px 0 12px;
+            margin: 8px 0 8px;
             padding-top: 10px;
             border-top: 1px solid rgba(181, 90, 154, 0.1);
         }
@@ -428,6 +425,41 @@
         }
         .delivery-area .frete-result strong { color: #b55a9a; }
 
+        /* --- Campos de endereço (ocultos inicialmente) --- */
+        .endereco-area {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(181, 90, 154, 0.2);
+            display: none; /* será exibido via JS quando o frete for calculado */
+        }
+        .endereco-area label {
+            font-size: 0.75rem;
+            color: #6b5f5a;
+            margin-top: 4px;
+        }
+        .endereco-area input {
+            width: 100%;
+            background: #f5f0ed;
+            border: 1px solid rgba(181, 90, 154, 0.2);
+            border-radius: 30px;
+            padding: 5px 12px;
+            color: #1e1a1a;
+            font-size: 0.8rem;
+            outline: none;
+            margin-bottom: 4px;
+        }
+        .endereco-area input:focus {
+            border-color: #b55a9a;
+        }
+        .endereco-area .row {
+            display: flex;
+            gap: 8px;
+        }
+        .endereco-area .row input {
+            flex: 1;
+        }
+
+        /* ===== PAGAMENTO ===== */
         .payment-area {
             margin: 6px 0 10px;
         }
@@ -896,6 +928,7 @@
             .float-cart-btn { padding: 8px 14px; font-size: 0.75rem; }
             .header-center .brand { font-size: 1.2rem; }
             .header-left img { height: 48px; }
+            .endereco-area .row { flex-direction: column; }
         }
 
         @media (max-width: 400px) {
@@ -950,6 +983,22 @@
                     <button class="btn-calc-frete" id="calcFreteBtn"><i class="fas fa-calculator"></i></button>
                 </div>
                 <div class="frete-result" id="freteResult">Digite seu bairro para calcular o frete.</div>
+
+                <!-- ENDEREÇO (oculto inicialmente) -->
+                <div class="endereco-area" id="enderecoArea">
+                    <label>Rua:</label>
+                    <input type="text" id="ruaInput" placeholder="Ex: Rua das Flores" />
+                    <div class="row">
+                        <div>
+                            <label>Número:</label>
+                            <input type="text" id="numeroInput" placeholder="123" />
+                        </div>
+                        <div>
+                            <label>Lote / Referência:</label>
+                            <input type="text" id="loteInput" placeholder="Lote 12, prox. ao mercado" />
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- PAGAMENTO (ORDEM: Cartão, Pix, Dinheiro) -->
@@ -1004,7 +1053,7 @@
                 </div>
             </div>
 
-            <!-- ENTREGA -->
+            <!-- ENTREGA (modal) -->
             <div class="delivery-area">
                 <label><i class="fas fa-map-pin"></i> Bairro para entrega</label>
                 <div class="input-group">
@@ -1012,9 +1061,25 @@
                     <button class="btn-calc-frete" id="modalCalcFreteBtn"><i class="fas fa-calculator"></i></button>
                 </div>
                 <div class="frete-result" id="modalFreteResult">Digite seu bairro para calcular o frete.</div>
+
+                <!-- ENDEREÇO (modal) -->
+                <div class="endereco-area" id="modalEnderecoArea">
+                    <label>Rua:</label>
+                    <input type="text" id="modalRuaInput" placeholder="Ex: Rua das Flores" />
+                    <div class="row">
+                        <div>
+                            <label>Número:</label>
+                            <input type="text" id="modalNumeroInput" placeholder="123" />
+                        </div>
+                        <div>
+                            <label>Lote / Referência:</label>
+                            <input type="text" id="modalLoteInput" placeholder="Lote 12, prox. ao mercado" />
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- PAGAMENTO (ORDEM: Cartão, Pix, Dinheiro) -->
+            <!-- PAGAMENTO (modal) -->
             <div class="payment-area">
                 <label><i class="fas fa-credit-card"></i> Forma de pagamento</label>
                 <div class="radio-group">
@@ -1175,6 +1240,11 @@
         const bairroInput = document.getElementById('bairroInput');
         const calcFreteBtn = document.getElementById('calcFreteBtn');
         const freteResult = document.getElementById('freteResult');
+        const enderecoArea = document.getElementById('enderecoArea');
+        const ruaInput = document.getElementById('ruaInput');
+        const numeroInput = document.getElementById('numeroInput');
+        const loteInput = document.getElementById('loteInput');
+
         const paymentRadios = document.querySelectorAll('input[name="payment"]');
         const trocoArea = document.getElementById('trocoArea');
         const valorPago = document.getElementById('valorPago');
@@ -1189,6 +1259,11 @@
         const modalBairroInput = document.getElementById('modalBairroInput');
         const modalCalcFreteBtn = document.getElementById('modalCalcFreteBtn');
         const modalFreteResult = document.getElementById('modalFreteResult');
+        const modalEnderecoArea = document.getElementById('modalEnderecoArea');
+        const modalRuaInput = document.getElementById('modalRuaInput');
+        const modalNumeroInput = document.getElementById('modalNumeroInput');
+        const modalLoteInput = document.getElementById('modalLoteInput');
+
         const modalPaymentRadios = document.querySelectorAll('input[name="modalPayment"]');
         const modalTrocoArea = document.getElementById('modalTrocoArea');
         const modalValorPago = document.getElementById('modalValorPago');
@@ -1197,7 +1272,7 @@
         const modalClearBtn = document.getElementById('modalClearBtn');
 
         // ================================================================
-        // 7. FRETES
+        // 7. FRETES (incluindo "engenho" com R$ 3,00)
         // ================================================================
         const fretes = {
             'centro': 5.00,
@@ -1206,6 +1281,7 @@
             'parque': 6.00,
             'santa maria': 9.00,
             'cidade alta': 10.00,
+            'engenho': 3.00,
         };
 
         // ================================================================
@@ -1268,7 +1344,7 @@
         }
 
         // ================================================================
-        // 9. MODAL DE SABORES
+        // 9. MODAL DE SABORES (mesma lógica anterior)
         // ================================================================
         function openModal(item) {
             modalState = {
@@ -1631,10 +1707,19 @@
             freteAtual = 0;
             bairroInput.value = '';
             freteResult.innerHTML = 'Digite seu bairro para calcular o frete.';
-            valorPago.value = '';
-            trocoResult.innerHTML = '';
+            // Esconder campos de endereço
+            enderecoArea.style.display = 'none';
+            ruaInput.value = '';
+            numeroInput.value = '';
+            loteInput.value = '';
             modalBairroInput.value = '';
             modalFreteResult.innerHTML = 'Digite seu bairro para calcular o frete.';
+            modalEnderecoArea.style.display = 'none';
+            modalRuaInput.value = '';
+            modalNumeroInput.value = '';
+            modalLoteInput.value = '';
+            valorPago.value = '';
+            trocoResult.innerHTML = '';
             modalValorPago.value = '';
             modalTrocoResult.innerHTML = '';
             renderCart();
@@ -1642,13 +1727,14 @@
         }
 
         // ================================================================
-        // 11. FRETE E TROCO
+        // 11. FRETE E ENDEREÇO
         // ================================================================
         function calcularFrete() {
             const bairro = bairroInput.value.trim().toLowerCase();
             if (!bairro) {
                 freteResult.innerHTML = 'Digite o bairro.';
                 freteAtual = 0;
+                enderecoArea.style.display = 'none';
                 renderCart();
                 return;
             }
@@ -1656,9 +1742,12 @@
             if (found) {
                 freteAtual = fretes[found];
                 freteResult.innerHTML = `Frete para <strong>${found}</strong>: R$ ${freteAtual.toFixed(2)}`;
+                // Exibir campos de endereço
+                enderecoArea.style.display = 'block';
             } else {
                 freteAtual = 0;
                 freteResult.innerHTML = 'Bairro não encontrado. Consulte-nos.';
+                enderecoArea.style.display = 'none';
             }
             renderCart();
         }
@@ -1668,6 +1757,7 @@
             if (!bairro) {
                 modalFreteResult.innerHTML = 'Digite o bairro.';
                 freteAtual = 0;
+                modalEnderecoArea.style.display = 'none';
                 renderCart();
                 return;
             }
@@ -1678,9 +1768,14 @@
                 // Sincroniza com a sidebar
                 bairroInput.value = modalBairroInput.value;
                 freteResult.innerHTML = modalFreteResult.innerHTML;
+                // Exibir campos de endereço
+                enderecoArea.style.display = 'block';
+                modalEnderecoArea.style.display = 'block';
             } else {
                 freteAtual = 0;
                 modalFreteResult.innerHTML = 'Bairro não encontrado. Consulte-nos.';
+                modalEnderecoArea.style.display = 'none';
+                enderecoArea.style.display = 'none';
             }
             renderCart();
         }
@@ -1728,7 +1823,7 @@
         }
 
         // ================================================================
-        // 12. FINALIZAR (WHATSAPP) - NÚMERO CORRETO E SEM EMOJIS
+        // 12. FINALIZAR (WHATSAPP) - COM ENDEREÇO
         // ================================================================
         function checkout() {
             const keys = Object.keys(cart);
@@ -1764,9 +1859,16 @@
                 }
             }
 
-            msg += `\n\nEntrega: ${bairroInput.value || 'não informado'}`;
+            // Adicionar endereço se os campos estiverem visíveis e preenchidos
+            let endereco = '';
+            const rua = ruaInput.value.trim();
+            const numero = numeroInput.value.trim();
+            const lote = loteInput.value.trim();
+            if (rua || numero || lote) {
+                endereco = `\n\nEndereço: ${rua}, ${numero}${lote ? ' - ' + lote : ''}`;
+            }
+            msg += `\n\nBairro: ${bairroInput.value || 'não informado'}${endereco}`;
 
-            // Número correto: +55 21 98233-6956
             const phone = '5521982336956';
             const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
             window.open(url, '_blank');
@@ -1828,6 +1930,14 @@
             // Sincroniza campos
             modalBairroInput.value = bairroInput.value;
             modalFreteResult.innerHTML = freteResult.innerHTML;
+            if (enderecoArea.style.display === 'block') {
+                modalEnderecoArea.style.display = 'block';
+            } else {
+                modalEnderecoArea.style.display = 'none';
+            }
+            modalRuaInput.value = ruaInput.value;
+            modalNumeroInput.value = numeroInput.value;
+            modalLoteInput.value = loteInput.value;
 
             const paymentSelected = document.querySelector('input[name="payment"]:checked');
             if (paymentSelected) {
@@ -1898,6 +2008,14 @@
             bairroInput.value = modalBairroInput.value;
         });
 
+        // Sincronizar endereço entre sidebar e modal
+        ruaInput.addEventListener('input', () => { modalRuaInput.value = ruaInput.value; });
+        modalRuaInput.addEventListener('input', () => { ruaInput.value = modalRuaInput.value; });
+        numeroInput.addEventListener('input', () => { modalNumeroInput.value = numeroInput.value; });
+        modalNumeroInput.addEventListener('input', () => { numeroInput.value = modalNumeroInput.value; });
+        loteInput.addEventListener('input', () => { modalLoteInput.value = loteInput.value; });
+        modalLoteInput.addEventListener('input', () => { loteInput.value = modalLoteInput.value; });
+
         // Pagamento sidebar
         paymentRadios.forEach(radio => {
             radio.addEventListener('change', () => {
@@ -1957,6 +2075,9 @@
             // Sincroniza campos antes de finalizar
             bairroInput.value = modalBairroInput.value;
             freteResult.innerHTML = modalFreteResult.innerHTML;
+            ruaInput.value = modalRuaInput.value;
+            numeroInput.value = modalNumeroInput.value;
+            loteInput.value = modalLoteInput.value;
             const paymentSelected = document.querySelector('input[name="modalPayment"]:checked');
             if (paymentSelected) {
                 document.querySelector(`input[name="payment"][value="${paymentSelected.value}"]`).checked = true;
